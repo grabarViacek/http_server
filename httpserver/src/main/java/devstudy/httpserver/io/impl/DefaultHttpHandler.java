@@ -26,14 +26,18 @@ public class DefaultHttpHandler implements HttpRequestDispatcher {
 		Path path = Paths.get(context.getRootPath().toString() + url);
 		if (Files.exists(path)) {
 			if (Files.isDirectory(path)) {
-				handleFolderUrl(context, response, path);
+				handleDirectoryUrl(context, response, path);
 			} else {
 				handleFileUrl(context, response, path);
 			}
 		} else {
 			response.setStatus(404);
-			response.setBody("<h1>Not Found</h1>");
 		}
+	}
+
+	protected void handleDirectoryUrl(HttpServerContext context, HttpResponse response, Path path) throws IOException {
+		String content = getResponseForDirectory(context, path);
+		response.setBody(content);
 	}
 
 	protected void handleFileUrl(HttpServerContext context, HttpResponse response, Path path) throws IOException {
@@ -43,13 +47,17 @@ public class DefaultHttpHandler implements HttpRequestDispatcher {
 		}
 	}
 
-	protected void handleFolderUrl(HttpServerContext context, HttpResponse response, Path path) throws IOException {
-		String content = getResponseFromFolder(context, response, path);
-		response.setBody(content);
+	protected void setEntityHeaders(HttpServerContext context, HttpResponse response, Path path) throws IOException {
+		String extension = FilenameUtils.getExtension(path.toString());
+		response.setHeaders("Content-Type", context.getContentType(extension));
+		response.setHeaders("Last-Modified", Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS));
+		Integer expiresDays = context.getExpiresDaysForResource(extension);
+		if (expiresDays != null) {
+			response.setHeaders("Expires", new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(expiresDays)));
+		}
 	}
 
-	protected String getResponseFromFolder(HttpServerContext context, HttpResponse response, Path dir)
-			throws IOException {
+	protected String getResponseForDirectory(HttpServerContext context, Path dir) throws IOException {
 		String root = context.getRootPath().toString();
 		StringBuilder htmlBody = new StringBuilder();
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dir)) {
@@ -62,18 +70,7 @@ public class DefaultHttpHandler implements HttpRequestDispatcher {
 	}
 
 	private String getHref(String root, Path path) {
-		return path.toString().replace(root, "");
-	}
-
-	protected void setEntityHeaders(HttpServerContext context, HttpResponse response, Path path) throws IOException {
-		String extension = FilenameUtils.getExtension(path.toString());
-		response.setHeaders("Content-type", context.getContentType(extension));
-		response.setHeaders("Last-Modified", Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS));
-		Integer expiresDay = context.getExpriresDaysForResource(extension);
-		if (expiresDay != 0) {
-			response.setHeaders("Expires", new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(expiresDay)));
-
-		}
+		return path.toString().replace(root, "").replace("\\", "/");
 	}
 
 }

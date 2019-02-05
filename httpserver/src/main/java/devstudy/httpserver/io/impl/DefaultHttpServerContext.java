@@ -66,7 +66,7 @@ public class DefaultHttpServerContext extends AbstractHttpConfigurableComponent 
 	}
 
 	@Override
-	public Integer getExpriresDaysForResource(String extension) {
+	public Integer getExpiresDaysForResource(String extension) {
 		return getDefaultHttpServerConfig().getStaticExpiresDays();
 	}
 
