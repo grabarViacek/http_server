@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import devstudy.httpserver.io.Constans;
+import devstudy.httpserver.io.Constants;
 import devstudy.httpserver.io.HtmlTemplateManager;
 import devstudy.httpserver.io.HttpServerContext;
 import devstudy.httpserver.io.ServerInfo;
@@ -30,11 +30,11 @@ public class DefaultHttpServerContext extends AbstractHttpConfigurableComponent 
 
 	@Override
 	public Collection<String> getSupportedMethods() {
-		return Constans.ALLOWED_METHODS;
+		return Constants.ALLOWED_METHODS;
 	}
 
 	@Override
-	public Properties getSupportedResponseStatus() {
+	public Properties getSupportedResponseStatuses() {
 		Properties prop = new Properties();
 		prop.putAll(getDefaultHttpServerConfig().getStatusesProperties());
 		return null;

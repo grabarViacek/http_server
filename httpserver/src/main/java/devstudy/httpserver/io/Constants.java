@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public final class Constans {
+public final class Constants {
 
 	public static final String HTTP_VERSION = "HTTP/1.1";
 
@@ -17,7 +17,7 @@ public final class Constans {
 	public static final List<String> ALLOWED_METHODS = Collections
 			.unmodifiableList(Arrays.asList(new String[] { GET, POST, HEAD }));
 
-	public Constans() {
+	public Constants() {
 	}
 
 }

@@ -12,7 +12,7 @@ public interface HttpServerContext {
 
 	Collection<String> getSupportedMethods();
 
-	Properties getSupportedResponseStatus();
+	Properties getSupportedResponseStatuses();
 
 	DataSource getDataSource();
 

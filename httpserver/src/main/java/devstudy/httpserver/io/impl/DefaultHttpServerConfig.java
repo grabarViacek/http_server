@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +20,9 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import devstudy.httpserver.io.HandlerConfig;
 import devstudy.httpserver.io.HtmlTemplateManager;
+import devstudy.httpserver.io.HttpHandler;
 import devstudy.httpserver.io.HttpServerContext;
 import devstudy.httpserver.io.ServerInfo;
 import devstudy.httpserver.io.config.HttpClientSocketHandler;
@@ -36,6 +39,7 @@ class DefaultHttpServerConfig implements HttpServerConfig {
 	private final Properties serverProperties = new Properties();
 	private final Properties statusesProperties = new Properties();
 	private final Properties mimeTypesProperties = new Properties();
+	private final Map<String, HttpHandler> httpHandlers;
 	private final BasicDataSource dataSource;
 	private final Path rootPath;
 	private final HttpServerContext httpServerContext;
@@ -43,15 +47,19 @@ class DefaultHttpServerConfig implements HttpServerConfig {
 	private final HttpResponseWriter httpResponseWriter;
 	private final HttpResponseBuilder httpResponseBuilder;
 	private final HttpRequestDispatcher httpRequestDispatcher;
+	private final HttpHandler defaultHttpHandler;
 	private final ThreadFactory workerThreadFactory;
 	private final HtmlTemplateManager htmlTemplateManager;
 	private final ServerInfo serverInfo;
 	private final List<String> staticExpiresExtensions;
 	private final int staticExpiresDays;
 
-	DefaultHttpServerConfig(Properties overrideServerProperties) {
+	@SuppressWarnings("unchecked")
+	DefaultHttpServerConfig(HandlerConfig handlerConfig, Properties overrideServerProperties) {
 		super();
 		loadAllProperties(overrideServerProperties);
+		this.httpHandlers = handlerConfig != null ? handlerConfig.toMap()
+				: (Map<String, HttpHandler>) Collections.EMPTY_MAP;
 		this.rootPath = createRootPath();
 		this.dataSource = createBasicDataSource();
 		this.serverInfo = createServerInfo();
@@ -64,9 +72,10 @@ class DefaultHttpServerConfig implements HttpServerConfig {
 		this.httpRequestParser = new DefaultHttpRequestParser();
 		this.httpResponseWriter = new DefaultHttpResponseWriter(this);
 		this.httpResponseBuilder = new DefaultHttpResponseBuilder(this);
-		this.httpRequestDispatcher = new DefaultHttpHandler();
+		this.defaultHttpHandler = new DefaultHttpHandler();
+		this.httpRequestDispatcher = new DefaultHttpRequestDispatcher(defaultHttpHandler, this.httpHandlers);
 		this.workerThreadFactory = new DefaultThreadFactory();
-		this.htmlTemplateManager = null;
+		this.htmlTemplateManager = new DefaultHtmlTemplateManager();
 	}
 
 	protected void loadAllProperties(Properties overrideServerProperties) {
@@ -110,6 +119,9 @@ class DefaultHttpServerConfig implements HttpServerConfig {
 				Integer.parseInt(serverProperties.getProperty("server.thread.count")));
 		if (si.getThreadCount() < 0) {
 			throw new HttpServerConfigException("server.thread.count should be >= 0");
+		}
+		if (si.getPort() < 0 || si.getPort() > 65535) {
+			throw new HttpServerConfigException("server.port should be between 0 and 65535");
 		}
 		return si;
 	}
@@ -206,12 +218,20 @@ class DefaultHttpServerConfig implements HttpServerConfig {
 		return mimeTypesProperties;
 	}
 
+	protected Map<String, HttpHandler> getHttpHandlers() {
+		return httpHandlers;
+	}
+
 	protected BasicDataSource getDataSource() {
 		return dataSource;
 	}
 
 	protected Path getRootPath() {
 		return rootPath;
+	}
+
+	protected HttpHandler getDefaultHttpHandler() {
+		return defaultHttpHandler;
 	}
 
 	protected HtmlTemplateManager getHtmlTemplateManager() {
@@ -236,11 +256,5 @@ class DefaultHttpServerConfig implements HttpServerConfig {
 			}
 		}
 		LOGGER.info("DefaultHttpServerConfig closed");
-	}
-
-	@Override
-	public HttpClientSocketHandler buildNewHttpClientSocketHandler() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

@@ -9,16 +9,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
 
+import devstudy.httpserver.io.HttpHandler;
 import devstudy.httpserver.io.HttpRequest;
 import devstudy.httpserver.io.HttpResponse;
 import devstudy.httpserver.io.HttpServerContext;
-import devstudy.httpserver.io.config.HttpRequestDispatcher;
+import devstudy.httpserver.io.utils.DataUtils;
 
-public class DefaultHttpHandler implements HttpRequestDispatcher {
+public class DefaultHttpHandler implements HttpHandler {
 
 	@Override
 	public void handle(HttpServerContext context, HttpRequest request, HttpResponse response) throws IOException {
@@ -34,12 +36,12 @@ public class DefaultHttpHandler implements HttpRequestDispatcher {
 			response.setStatus(404);
 		}
 	}
-
+	
 	protected void handleDirectoryUrl(HttpServerContext context, HttpResponse response, Path path) throws IOException {
 		String content = getResponseForDirectory(context, path);
 		response.setBody(content);
 	}
-
+	
 	protected void handleFileUrl(HttpServerContext context, HttpResponse response, Path path) throws IOException {
 		setEntityHeaders(context, response, path);
 		try (InputStream in = Files.newInputStream(path, StandardOpenOption.READ)) {
@@ -52,7 +54,7 @@ public class DefaultHttpHandler implements HttpRequestDispatcher {
 		response.setHeaders("Content-Type", context.getContentType(extension));
 		response.setHeaders("Last-Modified", Files.getLastModifiedTime(path, LinkOption.NOFOLLOW_LINKS));
 		Integer expiresDays = context.getExpiresDaysForResource(extension);
-		if (expiresDays != null) {
+		if(expiresDays != null) {
 			response.setHeaders("Expires", new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(expiresDays)));
 		}
 	}
@@ -62,15 +64,18 @@ public class DefaultHttpHandler implements HttpRequestDispatcher {
 		StringBuilder htmlBody = new StringBuilder();
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dir)) {
 			for (Path path : directoryStream) {
-				htmlBody.append("<a href=\"").append(getHref(root, path)).append("\">").append(path.getFileName())
-						.append("</a><br>\r\n");
+				htmlBody.append("<a href=\"").append(getHref(root, path)).append("\">").append(path.getFileName()).append("</a><br>\r\n");
 			}
 		}
-		return htmlBody.toString();
+		Map<String, Object> args = DataUtils.buildMap(new Object[][] { 
+			{ "TITLE",   "File list for " + dir.getFileName() }, 
+			{ "HEADER", "File list for " + dir.getFileName() },
+			{ "BODY", 	 htmlBody } 
+		});
+		return context.getHtmlTemplateManager().processTemplate("simple.html", args);
 	}
 
 	private String getHref(String root, Path path) {
 		return path.toString().replace(root, "").replace("\\", "/");
 	}
-
 }

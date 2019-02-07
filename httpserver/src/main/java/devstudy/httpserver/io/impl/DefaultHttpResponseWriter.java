@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import devstudy.httpserver.io.Constans;
+import devstudy.httpserver.io.Constants;
 import devstudy.httpserver.io.config.HttpResponseWriter;
 import devstudy.httpserver.io.config.HttpServerConfig;
 import devstudy.httpserver.io.config.ReadableHttpResponse;
@@ -34,7 +34,7 @@ class DefaultHttpResponseWriter extends AbstractHttpConfigurableComponent implem
 	}
 
 	private void addStartingLine(PrintWriter pw, ReadableHttpResponse response) {
-		String httpVersion = Constans.HTTP_VERSION;
+		String httpVersion = Constants.HTTP_VERSION;
 		int status = response.getStatus();
 		String statusMassege = httpServerConfig.getStatusMessage(status);
 		pw.println(String.format("%s %s %s", httpVersion, status, statusMassege));

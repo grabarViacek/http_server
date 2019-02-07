@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import devstudy.httpserver.io.Constans;
+import devstudy.httpserver.io.Constants;
 import devstudy.httpserver.io.HttpRequest;
 import devstudy.httpserver.io.config.HttpRequestParser;
 import devstudy.httpserver.io.exeption.BadRequestException;
@@ -53,12 +53,12 @@ class DefaultHttpRequestParser implements HttpRequestParser {
 	protected ProcessedUri extractParametersIfPresent(String method, String uri, String httpVersion, String messageBody)
 			throws UnsupportedEncodingException {
 		Map<String, String> params = Collections.emptyMap();
-		if (Constans.GET.equals(method) || Constans.HEAD.equals(method)) {
+		if (Constants.GET.equals(method) || Constants.HEAD.equals(method)) {
 			int indexParam = uri.indexOf('?');
 			if (indexParam != -1) {
 				return extractParametersFromUri(uri, indexParam);
 			}
-		} else if (Constans.POST.equalsIgnoreCase(method)) {
+		} else if (Constants.POST.equalsIgnoreCase(method)) {
 			if (messageBody != null && !"".equals(messageBody)) {
 				params = getParameters(messageBody);
 			}
@@ -96,7 +96,7 @@ class DefaultHttpRequestParser implements HttpRequestParser {
 	}
 
 	protected void validateHttpVersion(String httpVersion, String startingLine) {
-		if (!httpVersion.equals(Constans.HTTP_VERSION)) {
+		if (!httpVersion.equals(Constants.HTTP_VERSION)) {
 			throw new HttpVersionNotSupportedException("Current server supports only HTTP/1.1 protocol", startingLine);
 		}
 	}

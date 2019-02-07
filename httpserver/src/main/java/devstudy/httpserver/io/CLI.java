@@ -9,6 +9,9 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import devstudy.httpserver.io.handler.HelloWorldHttpHandler;
+import devstudy.httpserver.io.handler.ServerInfoHttpHandler;
+import devstudy.httpserver.io.handler.TestJDBCHandler;
 import devstudy.httpserver.io.impl.HttpServerFactory;
 
 public class CLI {
@@ -20,7 +23,7 @@ public class CLI {
 		Thread.currentThread().setName("CLI-main thread");
 		try {
 			HttpServerFactory httpServerFactory = HttpServerFactory.create();
-			HttpServer httpServer = httpServerFactory.createHttpServer(null);
+			HttpServer httpServer = httpServerFactory.createHttpServer(getHandlerConfig(),null);
 			httpServer.start();
 			waitForStopCommand(httpServer);
 		} catch (Exception e) {
@@ -41,4 +44,12 @@ public class CLI {
 			}
 		}
 	}
+	
+	private static HandlerConfig getHandlerConfig() {
+		return new HandlerConfig()
+				.addHandler("/info", new ServerInfoHttpHandler())
+				.addHandler("/jdbc", new TestJDBCHandler())
+				.addHandler("/hello", new HelloWorldHttpHandler());
+	}
+	
 }

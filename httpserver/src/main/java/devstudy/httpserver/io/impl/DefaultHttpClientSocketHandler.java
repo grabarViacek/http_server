@@ -6,12 +6,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import org.apache.commons.dbcp2.Constants;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import devstudy.httpserver.io.Constans;
+import devstudy.httpserver.io.Constants;
 import devstudy.httpserver.io.HttpRequest;
 import devstudy.httpserver.io.HttpResponse;
 import devstudy.httpserver.io.HttpServerContext;
@@ -68,7 +67,7 @@ public class DefaultHttpClientSocketHandler implements HttpClientSocketHandler {
 			LOGGER.warn("Client socket closed connection");
 			return;
 		}
-		httpServerConfig.getHttpResponseBuilder().prepareHttpResponse(response, startingLine.startsWith(Constans.HEAD));
+		httpServerConfig.getHttpResponseBuilder().prepareHttpResponse(response, startingLine.startsWith(Constants.HEAD));
 		ACCESS_LOGGER.info("Request: {} - \"{}\", Response: {} ({} bytes)", remoteAddress, startingLine,
 				response.getStatus(), response.getBodyLength());
 		httpServerConfig.getHttpResponseWriter().writeHttpResponse(out, response);
@@ -89,7 +88,7 @@ public class DefaultHttpClientSocketHandler implements HttpClientSocketHandler {
 			HttpServerException e = (HttpServerException) ex;
 			response.setStatus(e.getStatusCode());
 			if (e instanceof MethodNotAllowedException) {
-				response.setHeaders("Allow", StringUtils.join(Constans.ALLOWED_METHODS, ", "));
+				response.setHeaders("Allow", StringUtils.join(Constants.ALLOWED_METHODS, ", "));
 			}
 		} else {
 			response.setStatus(500);

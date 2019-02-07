@@ -9,7 +9,7 @@ import devstudy.httpserver.io.ServerInfo;
 public interface HttpServerConfig extends AutoCloseable {
 
 	ServerInfo getServerInfo();
-	
+
 	String getStatusMessage(int status);
 
 	HttpRequestParser getHttpRequestParser();
@@ -23,8 +23,6 @@ public interface HttpServerConfig extends AutoCloseable {
 	HttpServerContext getHttpServerContext();
 
 	ThreadFactory getWorkerThreadFactory();
-
-	HttpClientSocketHandler buildNewHttpClientSocketHandler();
 
 	HttpClientSocketHandler buildNewHttpClientSocketHandler(Socket clientSocket);
 
