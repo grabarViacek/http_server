@@ -17,12 +17,12 @@ import devstudy.httpserver.io.config.ReadableHttpResponse;
 import devstudy.httpserver.io.exeption.HttpServerException;
 import devstudy.httpserver.io.utils.HttpUtils;
 
-class DefaultReadebleHttpResponse implements ReadableHttpResponse {
+class DefaultReadableHttpResponse implements ReadableHttpResponse {
 	private int status;
 	private Map<String, String> headers;
 	private byte[] body;
 
-	protected DefaultReadebleHttpResponse() {
+	protected DefaultReadableHttpResponse() {
 		this.status = 200;
 		this.headers = new LinkedHashMap<>();
 		this.body = new byte[0];
@@ -36,8 +36,8 @@ class DefaultReadebleHttpResponse implements ReadableHttpResponse {
 	@Override
 	public void setHeaders(String name, Object value) {
 		Objects.requireNonNull(name, "Name can't be null");
-		Objects.requireNonNull(name, "Name can't be null");
-		HttpUtils.normilizeHeaderName(name);
+		Objects.requireNonNull(value, "Value can't be null");
+		name = HttpUtils.normilizeHeaderName(name);
 		if (value instanceof Date) {
 			headers.put(name, new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").format(value));
 		} else if (value instanceof FileTime) {
@@ -60,7 +60,7 @@ class DefaultReadebleHttpResponse implements ReadableHttpResponse {
 			Objects.requireNonNull(in, "InputStream can't be null");
 			this.body = IOUtils.toByteArray(in);
 		} catch (IOException e) {
-			new HttpServerException("Can't set response body from InputStream" + e.getMessage(), e);
+			throw new HttpServerException("Can't set response body from inputstream: " + e.getMessage(), e);
 		}
 	}
 
@@ -70,7 +70,7 @@ class DefaultReadebleHttpResponse implements ReadableHttpResponse {
 			Objects.requireNonNull(reader, "Reader can't be null");
 			this.body = IOUtils.toByteArray(reader, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			new HttpServerException("Can't set response body from Reader" + e.getMessage(), e);
+			throw new HttpServerException("Can't set response body from reader: " + e.getMessage(), e);
 		}
 	}
 

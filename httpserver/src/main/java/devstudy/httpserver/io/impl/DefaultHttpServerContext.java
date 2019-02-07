@@ -37,7 +37,7 @@ public class DefaultHttpServerContext extends AbstractHttpConfigurableComponent 
 	public Properties getSupportedResponseStatuses() {
 		Properties prop = new Properties();
 		prop.putAll(getDefaultHttpServerConfig().getStatusesProperties());
-		return null;
+		return prop;
 	}
 
 	@Override

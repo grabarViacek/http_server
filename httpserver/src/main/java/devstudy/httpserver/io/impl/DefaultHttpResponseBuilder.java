@@ -14,8 +14,8 @@ class DefaultHttpResponseBuilder extends AbstractHttpConfigurableComponent imple
 		super(httpServerConfig);
 	}
 
-	private DefaultReadebleHttpResponse createNewReadebleHttpResponseInstanse() {
-		return new DefaultReadebleHttpResponse();
+	private DefaultReadableHttpResponse createNewReadebleHttpResponseInstanse() {
+		return new DefaultReadableHttpResponse();
 	}
 
 	@Override
