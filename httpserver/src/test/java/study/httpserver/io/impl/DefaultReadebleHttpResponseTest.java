@@ -4,19 +4,16 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.file.attribute.FileTime;
-import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsSame;
@@ -27,7 +24,6 @@ import org.junit.rules.ExpectedException;
 
 import study.httpserver.io.config.ReadableHttpResponse;
 import study.httpserver.io.exception.HttpServerException;
-import study.httpserver.io.impl.DefaultReadableHttpResponse;
 
 public class DefaultReadebleHttpResponseTest {
 	private ReadableHttpResponse httpResponse;
